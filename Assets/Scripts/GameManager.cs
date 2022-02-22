@@ -26,12 +26,16 @@ namespace Com.MyCompany.MyGame
         };
         private int turn;
         private gameState state;
+        private int playerPlaying;
         private PlayerManager[] players;
         private PlayerManager player1;
         private PlayerManager player2;
+        private bool isPlaying;
         //[SerializeField] private GameObject[] boards;
         [SerializeField] private GameObject drawBoard;
+        [SerializeField] private GameObject drawText;
         [SerializeField] private GameObject mainBoard;
+        [SerializeField] private GameObject playCard;
         [SerializeField] private GameObject battleBoard;
         [SerializeField] private GameObject endBoard;
 
@@ -60,19 +64,24 @@ namespace Com.MyCompany.MyGame
 
             #region game rules
             turn = 0;
+            isPlaying = true;
             state = gameState.drawPhase;
+            var cpt = 10;
 
 
-            if (PhotonNetwork.PlayerList.Length >= 1)
-            {
-                StartCoroutine(MainGame());
-            }
+            //if (PhotonNetwork.PlayerList.Length >= 1)
+            //{
+            //    MainGame();
+            //}
             #endregion
         }
 
         private void Update()
         {
-            
+            if (isPlaying)
+            { 
+                MainGame();
+            }
         }
 
         #region Connection Management
@@ -125,22 +134,70 @@ namespace Com.MyCompany.MyGame
                 LoadArena();
             }
         }
-        #endregion
+    #endregion
 
-        #region game rules
-        private IEnumerator MainGame()
+    #region game rules
+    private void MainGame()
+    {
+        //if (SceneManager.GetActiveScene().name == "Room for 2")
+        if (SceneManager.GetActiveScene().name == "Room for 1")
         {
-            while (true)
+                if(turn%2 == 0)
+                {
+                    //determine the player by turn
+                    playerPlaying = 1;
+                }
+                else
+                {
+                    playerPlaying = 2;
+                }
+            switch (state)
             {
-                yield return new WaitForSeconds(5);
-                //if (Input.GetKeyDown(KeyCode.A))
-                //{
-                    ChangePhase(state);
-                //}
-            
-                //yield return 0;
+                case gameState.drawPhase:
+                    {
+                        //setActive text -> Piochez une carte !
+                        drawText.SetActive(true);
+                        if (Input.GetKeyDown(KeyCode.Space))
+                        {
+                            drawText.SetActive(false);
+                            ChangePhase(state);
+                        }
+                        break;
+                    }
+                case gameState.mainPhase:
+                    {
+                            //Need image target to determine what is being played
+                            if (!playCard.activeSelf)
+                            {
+                                playCard.SetActive(true);
+                            }
+                            //Modify the If statement -> if a new imageTarget is detected
+                            if (Input.GetKeyDown(KeyCode.Space))
+                            {
+                                //Add the type of card to the player space
+                                //Start invoke animation
+                                ChangePhase(state);
+                                
+                            }
+                        break;
+                    }
+                case gameState.battlePhase:
+                    {
+                            //Need image target to determine what is being played
+                            //Loop trought the list cardsOnField to get damage/effects ...
+                            //Let player choose what is the target and caculate damages
+                            ChangePhase(state);
+                            break;
+                    }
+                case gameState.endphase:
+                    {
+                            ChangePhase(state);
+                        break;
+                    }
             }
-        }
+            Debug.Log("end");
+        } 
+    }
 
         #region actions
         private void Draw()

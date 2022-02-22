@@ -22,6 +22,8 @@ namespace Com.MyCompany.MyGame
         public static bool myTurn = false;
         public static PlayerManager Instance;
 
+        public static GameObject[] cardsOnField;
+
         public void Start()
         {
             Instance = this;
