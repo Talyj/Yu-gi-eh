@@ -17,7 +17,7 @@ namespace Com.MyCompany.MyGame
         public static GameObject LocalPlayerInstance;
 
         [Tooltip("The current Health of our player")]
-        public float Health = 1f;
+        public float Health = 100f;
 
         public static bool myTurn = false;
         public static PlayerManager Instance;
@@ -69,6 +69,16 @@ namespace Com.MyCompany.MyGame
         private void EndTurn()
         {
             myTurn = false;            
+        }
+
+        private void DeclareAttack()
+        {
+            //TODO GetHealth 
+        }
+
+        public static void LooseHealth(float damages)
+        {
+            Instance.Health -= damages;
         }
     }
 }
