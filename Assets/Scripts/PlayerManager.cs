@@ -8,7 +8,7 @@ using Photon.Realtime;
 
 namespace Com.MyCompany.MyGame
 {
-    public class PlayerManager : MonoBehaviourPunCallbacks
+    public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField] public GameObject PlayerUiPrefab;
@@ -17,9 +17,9 @@ namespace Com.MyCompany.MyGame
         public static GameObject LocalPlayerInstance;
 
         [Tooltip("The current Health of our player")]
-        public float Health = 100f;
+        public float Health;
 
-        public static bool myTurn = false;
+        public bool myTurn = false;
         public static PlayerManager Instance;
 
         public static GameObject[] cardsOnField;
@@ -36,6 +36,7 @@ namespace Com.MyCompany.MyGame
             {
                 Debug.LogWarning("<Color=Red><a>Missing</a></Color> PlayerUiPrefab reference on player Prefab.", this);
             }
+            transform.position = new Vector3(5, 3, 0);
         }
 
         public void Awake()
@@ -60,10 +61,17 @@ namespace Com.MyCompany.MyGame
                 }
             }
 
-            if (myTurn)
-            {
+            //if (myTurn)
+            //{
+                Movement();
                 //Game
-            }
+            //}
+        }
+
+        public void DamagesCalculation(float damage)
+        {
+            //If regen the float has to be negative
+            Health -= damage;
         }
 
         private void EndTurn()
@@ -76,9 +84,44 @@ namespace Com.MyCompany.MyGame
             //TODO GetHealth 
         }
 
-        public static void LooseHealth(float damages)
+        private void Movement()
         {
-            Instance.Health -= damages;
+            var speed = Random.Range(1, 20);
+
+            transform.RotateAround(new Vector3(0, 1, 0), Vector3.up, 20 * Time.deltaTime * speed);
+
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                transform.position += new Vector3(0, 3, 0);
+            }
+            else if (Input.GetKeyDown(KeyCode.M))
+            {
+                transform.position -= new Vector3(0, 3, 0);
+            }
+
         }
+
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            if (stream.IsWriting)
+            {
+                // We own this player: send the others our data
+                stream.SendNext(Health);
+            }
+            else
+            {
+                // Network player, receive data
+                this.Health = (float)stream.ReceiveNext();
+            }
+        }
+
+        public void OnTriggerEnter(Collider other)
+        {
+            if (other.name.Contains("Damage"))
+            {
+                Health -= 20;
+            }
+        }
+
     }
 }

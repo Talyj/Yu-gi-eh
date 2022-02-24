@@ -1242,6 +1242,16 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7544603393388813213, guid: 422a9022a8ab740409547919a3dad478, type: 3}
   m_PrefabInstance: {fileID: 7544603394336465785}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1769679619 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 209773825388456299, guid: 0bfb75c46c6435841acbe23db514dda0, type: 3}
+  m_PrefabInstance: {fileID: 974631236}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1769679620 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 30754520635239159, guid: 0bfb75c46c6435841acbe23db514dda0, type: 3}
+  m_PrefabInstance: {fileID: 974631236}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4697107026189129146
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1298,6 +1308,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6917218079289173647, guid: 9598260149f78324595d79982c69db6b, type: 3}
+      propertyPath: damages
+      value: 
+      objectReference: {fileID: 772467885584830255, guid: e2092af62e55d194b9b70783b145509e, type: 3}
+    - target: {fileID: 6917218079289173647, guid: 9598260149f78324595d79982c69db6b, type: 3}
       propertyPath: endText
       value: 
       objectReference: {fileID: 974631240}
@@ -1325,6 +1339,14 @@ PrefabInstance:
       propertyPath: mainBoard
       value: 
       objectReference: {fileID: 388845144}
+    - target: {fileID: 6917218079289173647, guid: 9598260149f78324595d79982c69db6b, type: 3}
+      propertyPath: victoryP1
+      value: 
+      objectReference: {fileID: 1769679620}
+    - target: {fileID: 6917218079289173647, guid: 9598260149f78324595d79982c69db6b, type: 3}
+      propertyPath: victoryP2
+      value: 
+      objectReference: {fileID: 1769679619}
     - target: {fileID: 6917218079289173647, guid: 9598260149f78324595d79982c69db6b, type: 3}
       propertyPath: battleText
       value: 
