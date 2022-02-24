@@ -44,4 +44,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21a207ecdef52b54e9a152a08144d709, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 1963297370994591409, guid: 30746813570f53b4a8ecc9f5c8ad3d6e, type: 3}
+  playerPrefab: {fileID: 4108734835731721617, guid: 074ea0f8d0e72fc4f8932260fc5a20ea, type: 3}
+  drawBoard: {fileID: 0}
+  mainBoard: {fileID: 0}
+  battleBoard: {fileID: 0}
+  endBoard: {fileID: 0}
+  drawText: {fileID: 0}
+  playText: {fileID: 0}
+  battleText: {fileID: 0}
+  endText: {fileID: 0}
+  victoryP1: {fileID: 0}
+  victoryP2: {fileID: 0}
+  damages: {fileID: 0}

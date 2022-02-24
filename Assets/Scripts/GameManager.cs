@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
-
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Com.MyCompany.MyGame
 {
@@ -24,20 +25,38 @@ namespace Com.MyCompany.MyGame
             battlePhase = 2,
             endphase = 3
         };
+
+        private float timeBetweenBoards = 2;
+
         private int turn;
         private gameState state;
+        private bool isEndTurn;
         private int playerPlaying;
-        private PlayerManager[] players;
-        private PlayerManager player1;
-        private PlayerManager player2;
+        private GameObject[] players;
+        private GameObject player1;
+        private GameObject player2;
+
+        private float health1;
+        private float health2;
+        private bool first;
+
         private bool isPlaying;
         //[SerializeField] private GameObject[] boards;
         [SerializeField] private GameObject drawBoard;
-        [SerializeField] private GameObject drawText;
         [SerializeField] private GameObject mainBoard;
-        [SerializeField] private GameObject playCard;
         [SerializeField] private GameObject battleBoard;
         [SerializeField] private GameObject endBoard;
+
+        //[SerializeField] private GameObject[] texts;
+        [SerializeField] private GameObject drawText;
+        [SerializeField] private GameObject playText;
+        [SerializeField] private GameObject battleText;
+        [SerializeField] private GameObject endText;
+
+        [SerializeField] private GameObject victoryP1;
+        [SerializeField] private GameObject victoryP2;
+
+        [SerializeField] private GameObject damages;
 
         private void Start()
         {
@@ -67,8 +86,8 @@ namespace Com.MyCompany.MyGame
             isPlaying = true;
             state = gameState.drawPhase;
             var cpt = 10;
-
-
+            isEndTurn = true;
+            first = true;
             //if (PhotonNetwork.PlayerList.Length >= 1)
             //{
             //    MainGame();
@@ -79,8 +98,12 @@ namespace Com.MyCompany.MyGame
         private void Update()
         {
             if (isPlaying)
-            { 
+            {
                 MainGame();
+            }
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
             }
         }
 
@@ -136,68 +159,131 @@ namespace Com.MyCompany.MyGame
         }
     #endregion
 
-    #region game rules
-    private void MainGame()
-    {
-        //if (SceneManager.GetActiveScene().name == "Room for 2")
-        if (SceneManager.GetActiveScene().name == "Room for 1")
+        #region game rules
+        private void MainGame()
         {
-                if(turn%2 == 0)
+            players = GameObject.FindGameObjectsWithTag("Player");
+            if (SceneManager.GetActiveScene().name == "Room for 2" && players.Length > 1)
+            //if (SceneManager.GetActiveScene().name == "Room for 1"/* && players.Length > 0*/)
+            {
+                var res = new List<GameObject>();
+                foreach (var p in players)
                 {
-                    //determine the player by turn
-                    playerPlaying = 1;
+                    res.Add(p);
+                }
+                player1 = players[0];
+                player2 = players[1];
+                if (turn % 2 == 0)
+                {
+                    //player2.myTurn = true;
+                    //player1.myTurn = false;
+                    GameLoop(player2, player1);
                 }
                 else
                 {
-                    playerPlaying = 2;
+                    //player2.myTurn = false;
+                    //player1.myTurn = true;
+                    GameLoop(player1, player2);
                 }
-            switch (state)
-            {
-                case gameState.drawPhase:
-                    {
-                        //setActive text -> Piochez une carte !
-                        drawText.SetActive(true);
-                        if (Input.GetKeyDown(KeyCode.Space))
-                        {
-                            drawText.SetActive(false);
-                            ChangePhase(state);
-                        }
-                        break;
-                    }
-                case gameState.mainPhase:
-                    {
-                            //Need image target to determine what is being played
-                            if (!playCard.activeSelf)
-                            {
-                                playCard.SetActive(true);
-                            }
-                            //Modify the If statement -> if a new imageTarget is detected
-                            if (Input.GetKeyDown(KeyCode.Space))
-                            {
-                                //Add the type of card to the player space
-                                //Start invoke animation
-                                ChangePhase(state);
-                                
-                            }
-                        break;
-                    }
-                case gameState.battlePhase:
-                    {
-                            //Need image target to determine what is being played
-                            //Loop trought the list cardsOnField to get damage/effects ...
-                            //Let player choose what is the target and caculate damages
-                            ChangePhase(state);
-                            break;
-                    }
-                case gameState.endphase:
-                    {
-                            ChangePhase(state);
-                        break;
-                    }
+                if (first)
+                {
+                    //health1 = player1.Health;
+                    //health2 = player2.Health;
+                    first = false;  
+                }
+                //GameLoop(/*players[0]*/);
+                //OneIsDead(health1, health2);                   
             }
-            Debug.Log("end");
-        } 
-    }
+        }
+
+        private void GameLoop(GameObject playerTurn, GameObject otherPlayer)
+        {
+            //foreach(var p in players)
+            //{
+            //    if(p.GetInstanceID() == playerTurn.GetInstanceID())
+            //    {
+
+            //    }
+            //}
+            //If otherPlayer block the commands 
+            switch (state)
+                    {
+                        case gameState.drawPhase:
+                            {
+                                //setActive text -> Piochez une carte !
+                                drawText.SetActive(true);
+                                if (Input.GetKeyDown(KeyCode.Space))
+                                {
+                                    drawText.SetActive(false);
+                                    ChangePhase(state);
+                                }
+                                break;
+                            }
+                        case gameState.mainPhase:
+                            {
+                                playText.SetActive(true);
+                                //Modify the If statement -> if a new imageTarget is detected
+                                if (Input.GetKeyDown(KeyCode.A))
+                                {
+                                    //Add the type of card to the player space
+                                    //Start invoke animation
+                                    playText.SetActive(false);
+                                    ChangePhase(state);
+
+                                }
+                                break;
+                            }
+                        case gameState.battlePhase:
+                            {
+                                //Need image target to determine what is being played
+                                //Loop trought the list cardsOnField to get damage/effects ...
+                                //Let player choose what is the target and caculate damages
+                                battleText.SetActive(true);
+                                if (Input.GetKeyDown(KeyCode.Z))
+                                {
+                            Instantiate(damages, otherPlayer.gameObject.transform);
+                            //battleText.SetActive(false);
+                            //ChangePhase(state);
+                        }
+                                break;
+                            }
+                        case gameState.endphase:
+                            {
+                                //endText.SetActive(true);
+                                //if (Input.GetKeyDown(KeyCode.E))
+                                //{
+                                //endText.SetActive(false);
+                                if (isEndTurn)
+                                {
+                                    StartCoroutine(WaitChangePhase(timeBetweenBoards));
+                                    isEndTurn = true;
+                                }
+                                isEndTurn = false;
+                                //}
+                                break;
+                            }
+                    }
+        }
+
+        //public void DamagesCalculation(int player, float damage)
+        //{
+        //    if(player == 1)
+        //    {
+        //        //If regen the float has to be negative
+        //        health1 -= damage;
+        //    }
+        //    else
+        //    {
+        //        //If regen the float has to be negative
+        //        health2 -= damage;
+        //    }
+        //}
+
+        private IEnumerator WaitChangePhase(float time)
+        {
+            yield return new WaitForSeconds(time);
+            ChangePhase(state);
+        }
 
         #region actions
         private void Draw()
@@ -221,14 +307,31 @@ namespace Com.MyCompany.MyGame
         }
         #endregion
 
-        private bool OneIsDead(float health1, float health2)
-        {
-            if(health1 <= 0 || health2 <= 0)
-            {
-                return true;
-            }
-            return false;
-        }
+        #region test to delete maybe?
+        //private void VictoryCondition(int player)
+        //{
+        //    if(player == 1)
+        //    {
+        //        victoryP1.SetActive(true);
+        //    }
+        //    else
+        //    {
+        //        victoryP2.SetActive(true);
+        //    }
+        //}
+
+        //private void OneIsDead(float health1, float health2)
+        //{
+        //    if(health1 <= 0)
+        //    {
+        //        VictoryCondition(2);
+        //    }
+        //    else if(health2 <= 0)
+        //    {
+        //        VictoryCondition(1);
+        //    }
+        //}
+        #endregion
 
         private IEnumerator ChangeBoard(GameObject boardToDisplay, GameObject boardToHide1, GameObject boardToHide2, GameObject boardToHide3)
         {
@@ -236,7 +339,7 @@ namespace Com.MyCompany.MyGame
             boardToHide2.SetActive(false);
             boardToHide3.SetActive(false);
             boardToDisplay.SetActive(true);
-            yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(timeBetweenBoards);
             boardToDisplay.SetActive(false);
         }
 
@@ -275,3 +378,62 @@ namespace Com.MyCompany.MyGame
         #endregion
     }
 }
+
+#region comment
+//switch (state)
+//{
+//    case gameState.drawPhase:
+//        {
+//            //setActive text -> Piochez une carte !
+//            drawText.SetActive(true);
+//            if (Input.GetKeyDown(KeyCode.Space))
+//            {
+//                drawText.SetActive(false);
+//                ChangePhase(state);
+//            }
+//            break;
+//        }
+//    case gameState.mainPhase:
+//        {
+//                playText.SetActive(true);
+//                //Modify the If statement -> if a new imageTarget is detected
+//                if (Input.GetKeyDown(KeyCode.A))
+//                {
+//                    //Add the type of card to the player space
+//                    //Start invoke animation
+//                    playText.SetActive(false);
+//                    ChangePhase(state);
+
+//                }
+//            break;
+//        }
+//    case gameState.battlePhase:
+//        {
+//                //Need image target to determine what is being played
+//                //Loop trought the list cardsOnField to get damage/effects ...
+//                //Let player choose what is the target and caculate damages
+//                battleText.SetActive(true);
+//                if (Input.GetKeyDown(KeyCode.Z))
+//                {
+//                    battleText.SetActive(false);
+//                    ChangePhase(state);
+//                }
+//                break;
+//        }
+//    case gameState.endphase:
+//        {
+//                //endText.SetActive(true);
+//                //if (Input.GetKeyDown(KeyCode.E))
+//                //{
+//                //endText.SetActive(false);
+//                if (isEndTurn)
+//                {
+//                    StartCoroutine(WaitChangePhase(3));
+//                    isEndTurn = true;
+//                }
+//                isEndTurn = false;
+//                //}
+//            break;
+//        }
+//}
+#endregion
