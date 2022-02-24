@@ -33,7 +33,8 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    private void OnSpawn() {
+    //public pour test a modifier plus tard
+    public void OnSpawn() {
         anim.SetBool("Spawn", true);
         Invoke("Reset", 0.2f);
     }
