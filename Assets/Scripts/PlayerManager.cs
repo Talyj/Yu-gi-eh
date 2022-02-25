@@ -115,9 +115,9 @@ namespace Com.MyCompany.MyGame
             }
         }
 
-        public void OnTriggerEnter(Collider other)
+        public void OnCollisionEnter(Collision other)
         {
-            if (other.name.Contains("Damage"))
+            if (other.gameObject.CompareTag("damage"))
             {
                 Health -= 20;
             }

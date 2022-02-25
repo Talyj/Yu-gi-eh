@@ -241,7 +241,7 @@ namespace Com.MyCompany.MyGame
                                 battleText.SetActive(true);
                                 if (Input.GetKeyDown(KeyCode.Z))
                                 {
-                            Instantiate(damages, otherPlayer.gameObject.transform);
+                            Instantiate(damages, otherPlayer.gameObject.transform.position, Quaternion.identity);
                             //battleText.SetActive(false);
                             //ChangePhase(state);
                         }
