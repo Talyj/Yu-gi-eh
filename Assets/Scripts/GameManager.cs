@@ -1,11 +1,10 @@
 //using System;
-using System.Collections;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Com.MyCompany.MyGame
 {
@@ -31,14 +30,16 @@ namespace Com.MyCompany.MyGame
         private int turn;
         private gameState state;
         private bool isEndTurn;
-        private int playerPlaying;
-        private GameObject[] players;
-        private GameObject player1;
-        private GameObject player2;
+        private PlayerManager[] players;
+        private PlayerManager player1;
+        private PlayerManager player2;
 
         private float health1;
         private float health2;
         private bool first;
+
+        private int currentCardNumber;
+        private int oldCardNumber;
 
         private bool isPlaying;
         //[SerializeField] private GameObject[] boards;
@@ -56,19 +57,21 @@ namespace Com.MyCompany.MyGame
         [SerializeField] private GameObject victoryP1;
         [SerializeField] private GameObject victoryP2;
 
+        private MonsterManager[] monsters;
+
         [SerializeField] private GameObject damages;
 
         private void Start()
         {
             #region Connection Management
             Instance = this;
-            if(playerPrefab == null)
+            if (playerPrefab == null)
             {
                 Debug.LogError("<Color=Red><a>Missing</a></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'", this);
             }
             else
             {
-                if(PlayerManager.LocalPlayerInstance == null)
+                if (PlayerManager.LocalPlayerInstance == null)
                 {
                     Debug.LogFormat("We are Instantiating LocalPlayer from {0}", Application.loadedLevelName);
                     // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
@@ -85,9 +88,10 @@ namespace Com.MyCompany.MyGame
             turn = 0;
             isPlaying = true;
             state = gameState.drawPhase;
-            var cpt = 10;
             isEndTurn = true;
             first = true;
+            currentCardNumber = 0;
+            oldCardNumber = 0;
             //if (PhotonNetwork.PlayerList.Length >= 1)
             //{
             //    MainGame();
@@ -114,10 +118,10 @@ namespace Com.MyCompany.MyGame
             SceneManager.LoadScene(0);
         }
 
-        public void LeaveRoom()
-        {
-            PhotonNetwork.LeaveRoom();
-        }
+        //public void LeaveRoom()
+        //{
+        //    PhotonNetwork.LeaveRoom();
+        //}
 
         void LoadArena()
         {
@@ -157,22 +161,23 @@ namespace Com.MyCompany.MyGame
                 LoadArena();
             }
         }
-    #endregion
+        #endregion
 
         #region game rules
         private void MainGame()
         {
-            players = GameObject.FindGameObjectsWithTag("Player");
+            players = FindObjectsOfType<PlayerManager>();
             if (SceneManager.GetActiveScene().name == "Room for 2" && players.Length > 1)
             //if (SceneManager.GetActiveScene().name == "Room for 1"/* && players.Length > 0*/)
             {
-                var res = new List<GameObject>();
+                var res = new List<PlayerManager>();
                 foreach (var p in players)
                 {
                     res.Add(p);
                 }
                 player1 = players[0];
                 player2 = players[1];
+
                 if (turn % 2 == 0)
                 {
                     //player2.myTurn = true;
@@ -189,14 +194,14 @@ namespace Com.MyCompany.MyGame
                 {
                     //health1 = player1.Health;
                     //health2 = player2.Health;
-                    first = false;  
+                    first = false;
                 }
                 //GameLoop(/*players[0]*/);
                 //OneIsDead(health1, health2);                   
             }
         }
 
-        private void GameLoop(GameObject playerTurn, GameObject otherPlayer)
+        private void GameLoop(PlayerManager playerTurn, PlayerManager otherPlayer)
         {
             //foreach(var p in players)
             //{
@@ -207,77 +212,73 @@ namespace Com.MyCompany.MyGame
             //}
             //If otherPlayer block the commands 
             switch (state)
+            {
+                case gameState.drawPhase:
                     {
-                        case gameState.drawPhase:
-                            {
-                                //setActive text -> Piochez une carte !
-                                drawText.SetActive(true);
-                                if (Input.GetKeyDown(KeyCode.Space))
-                                {
-                                    drawText.SetActive(false);
-                                    ChangePhase(state);
-                                }
-                                break;
-                            }
-                        case gameState.mainPhase:
-                            {
-                                playText.SetActive(true);
-                                //Modify the If statement -> if a new imageTarget is detected
-                                if (Input.GetKeyDown(KeyCode.A))
-                                {
-                                    //Add the type of card to the player space
-                                    //Start invoke animation
-                                    playText.SetActive(false);
-                                    ChangePhase(state);
-
-                                }
-                                break;
-                            }
-                        case gameState.battlePhase:
-                            {
-                                //Need image target to determine what is being played
-                                //Loop trought the list cardsOnField to get damage/effects ...
-                                //Let player choose what is the target and caculate damages
-                                battleText.SetActive(true);
-                                if (Input.GetKeyDown(KeyCode.Z))
-                                {
-                            Instantiate(damages, otherPlayer.gameObject.transform.position, Quaternion.identity);
-                            //battleText.SetActive(false);
-                            //ChangePhase(state);
+                        //setActive text -> Piochez une carte !
+                        drawText.SetActive(true);
+                        if (Input.GetKeyDown(KeyCode.Space))
+                        {
+                            drawText.SetActive(false);
+                            ChangePhase(state);
                         }
-                                break;
-                            }
-                        case gameState.endphase:
-                            {
-                                //endText.SetActive(true);
-                                //if (Input.GetKeyDown(KeyCode.E))
-                                //{
-                                //endText.SetActive(false);
-                                if (isEndTurn)
-                                {
-                                    StartCoroutine(WaitChangePhase(timeBetweenBoards));
-                                    isEndTurn = true;
-                                }
-                                isEndTurn = false;
-                                //}
-                                break;
-                            }
+                        break;
                     }
-        }
+                case gameState.mainPhase:
+                    {
+                        playText.SetActive(true);
+                        if (Input.GetKeyDown(KeyCode.A))
+                        {
+                            CardNumber(true);
 
-        //public void DamagesCalculation(int player, float damage)
-        //{
-        //    if(player == 1)
-        //    {
-        //        //If regen the float has to be negative
-        //        health1 -= damage;
-        //    }
-        //    else
-        //    {
-        //        //If regen the float has to be negative
-        //        health2 -= damage;
-        //    }
-        //}
+                        }
+                        if (currentCardNumber != oldCardNumber)
+                        {
+                            //Have to add the card to the player playing hands
+                            oldCardNumber = currentCardNumber;
+                            //player1.GetComponent<PlayerManager>().DamagesCalculation(10);
+                            //otherPlayer.DamagesCalculation(50);
+                            playText.SetActive(false);
+                            ChangePhase(state);
+                        }
+                        break;
+                    }
+                case gameState.battlePhase:
+                    {
+                        //Need image target to determine what is being played
+                        //Loop trought the list cardsOnField to get damage/effects ...
+                        //Let player choose what is the target and caculate damages
+                        battleText.SetActive(true);
+                        if (Input.GetKeyDown(KeyCode.Z))
+                        {
+                            //player1.GetComponent<PlayerManager>().DamagesCalculation(10);
+                            //otherPlayer.DamagesCalculation(50);
+                            foreach(var m in monsters)
+                            {
+                                m.Attack(20, new MonsterManager());
+                            }
+                            battleText.SetActive(false);
+                            StartCoroutine(WaitChangePhase(timeBetweenBoards));
+                        }
+                        break;
+                    }
+                case gameState.endphase:
+                    {
+                        //endText.SetActive(true);
+                        //if (Input.GetKeyDown(KeyCode.E))
+                        //{
+                        //endText.SetActive(false);
+                        if (isEndTurn)
+                        {
+                            StartCoroutine(WaitChangePhase(timeBetweenBoards));
+                            isEndTurn = true;
+                        }
+                        isEndTurn = false;
+                        //}
+                        break;
+                    }
+            }
+        }
 
         private IEnumerator WaitChangePhase(float time)
         {
@@ -306,6 +307,18 @@ namespace Com.MyCompany.MyGame
             //TODO
         }
         #endregion
+
+        public void CardNumber(bool isUp)
+        {
+            if (isUp)
+            {
+                currentCardNumber = oldCardNumber + 1;
+            }
+            else
+            {
+                currentCardNumber = oldCardNumber - 1;
+            }
+        }
 
         #region test to delete maybe?
         //private void VictoryCondition(int player)
@@ -348,30 +361,30 @@ namespace Com.MyCompany.MyGame
             switch (gameStatus)
             {
                 case gameState.drawPhase:
-                {
-                    state = gameState.mainPhase;
-                    StartCoroutine(ChangeBoard(mainBoard, endBoard, drawBoard, battleBoard));
-                    break;
-                }
+                    {
+                        state = gameState.mainPhase;
+                        StartCoroutine(ChangeBoard(mainBoard, endBoard, drawBoard, battleBoard));
+                        break;
+                    }
                 case gameState.mainPhase:
-                {
-                    state = gameState.battlePhase;
-                    StartCoroutine(ChangeBoard(battleBoard, endBoard, drawBoard, mainBoard));
-                    break;
-                }
+                    {
+                        state = gameState.battlePhase;
+                        StartCoroutine(ChangeBoard(battleBoard, endBoard, drawBoard, mainBoard));
+                        break;
+                    }
                 case gameState.battlePhase:
-                {
-                    state = gameState.endphase;
-                    StartCoroutine(ChangeBoard(endBoard, mainBoard, drawBoard, battleBoard));
-                    break;
-                }
+                    {
+                        state = gameState.endphase;
+                        StartCoroutine(ChangeBoard(endBoard, mainBoard, drawBoard, battleBoard));
+                        break;
+                    }
                 case gameState.endphase:
-                {
-                    state = gameState.drawPhase;
-                    StartCoroutine(ChangeBoard(drawBoard, endBoard, mainBoard, battleBoard));
-                    turn++;
-                    break;
-                }
+                    {
+                        state = gameState.drawPhase;
+                        StartCoroutine(ChangeBoard(drawBoard, endBoard, mainBoard, battleBoard));
+                        turn++;
+                        break;
+                    }
 
             }
         }

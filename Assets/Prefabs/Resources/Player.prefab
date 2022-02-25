@@ -153,6 +153,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f8f8b2a5a930544291fe72f2e40fe7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerUiPrefab: {fileID: 7460574605707501304, guid: 2ecb0541dc80f3c4e8c3399986f401f4, type: 3}
+  PlayerUiPrefab: {fileID: 7460574605707501304, guid: 2ecb0541dc80f3c4e8c3399986f401f4,
+    type: 3}
   Health: 100
-  myTurn: 0
