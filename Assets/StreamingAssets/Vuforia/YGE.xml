@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
   <Tracking>
+    <ImageTarget name="t12_bis" size="0.070000 0.101630" />
+    <ImageTarget name="t12" size="0.070000 0.101630" />
+    <ImageTarget name="t11_bis" size="0.070000 0.101630" />
+    <ImageTarget name="t11" size="0.070000 0.101630" />
+    <ImageTarget name="t10_bis" size="0.070000 0.100326" />
+    <ImageTarget name="t10" size="0.070000 0.100326" />
+    <ImageTarget name="t9_bis" size="0.070000 0.101270" />
+    <ImageTarget name="t9" size="0.070000 0.101270" />
+    <ImageTarget name="t8_bis" size="0.070000 0.100326" />
+    <ImageTarget name="t8" size="0.070000 0.100326" />
+    <ImageTarget name="t7_bis" size="0.070000 0.100978" />
+    <ImageTarget name="t7" size="0.070000 0.100978" />
+    <ImageTarget name="t6_bis" size="0.070000 0.100326" />
+    <ImageTarget name="t6" size="0.070000 0.100326" />
+    <ImageTarget name="t4_bis" size="0.070000 0.101630" />
+    <ImageTarget name="t3_bis" size="0.070000 0.104569" />
     <ImageTarget name="t3" size="0.070000 0.104569" />
     <ImageTarget name="t4" size="0.070000 0.101630" />
     <ImageTarget name="t1" size="0.070000 0.100412" />
