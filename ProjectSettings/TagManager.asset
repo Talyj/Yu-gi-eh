@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Undefined
   - damage
+  - healer
+  - DPS
+  - tank
   layers:
   - Default
   - TransparentFX
