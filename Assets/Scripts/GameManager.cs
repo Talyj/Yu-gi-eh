@@ -57,9 +57,6 @@ namespace Com.MyCompany.MyGame
         [SerializeField] private GameObject battleText;
         [SerializeField] private GameObject endText;
 
-        [SerializeField] private GameObject victoryP1;
-        [SerializeField] private GameObject victoryP2;
-
 
         private void Start()
         {
