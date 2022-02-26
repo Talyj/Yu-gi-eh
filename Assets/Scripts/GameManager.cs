@@ -30,9 +30,9 @@ namespace Com.MyCompany.MyGame
         private int turn;
         private gameState state;
         private bool isEndTurn;
-        private PlayerManager[] players;
-        private PlayerManager player1;
-        private PlayerManager player2;
+        private GameObject[] players;
+        private PlayerStat player1;
+        private PlayerStat player2;
 
         private float health1;
         private float health2;
@@ -40,6 +40,9 @@ namespace Com.MyCompany.MyGame
 
         private int currentCardNumber;
         private int oldCardNumber;
+
+        private float damageTurn;
+        private float healTurn;
 
         private bool isPlaying;
         //[SerializeField] private GameObject[] boards;
@@ -57,9 +60,6 @@ namespace Com.MyCompany.MyGame
         [SerializeField] private GameObject victoryP1;
         [SerializeField] private GameObject victoryP2;
 
-        private MonsterManager[] monsters;
-
-        [SerializeField] private GameObject damages;
 
         private void Start()
         {
@@ -85,17 +85,13 @@ namespace Com.MyCompany.MyGame
             #endregion
 
             #region game rules
-            turn = 0;
+            turn = 1;
             isPlaying = true;
             state = gameState.drawPhase;
             isEndTurn = true;
             first = true;
             currentCardNumber = 0;
             oldCardNumber = 0;
-            //if (PhotonNetwork.PlayerList.Length >= 1)
-            //{
-            //    MainGame();
-            //}
             #endregion
         }
 
@@ -104,6 +100,7 @@ namespace Com.MyCompany.MyGame
             if (isPlaying)
             {
                 MainGame();
+                Debug.Log( "tour numéro : " + turn);
             }
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -118,10 +115,10 @@ namespace Com.MyCompany.MyGame
             SceneManager.LoadScene(0);
         }
 
-        //public void LeaveRoom()
-        //{
-        //    PhotonNetwork.LeaveRoom();
-        //}
+        public void LeaveRoom()
+        {
+            PhotonNetwork.LeaveRoom();
+        }
 
         void LoadArena()
         {
@@ -166,42 +163,32 @@ namespace Com.MyCompany.MyGame
         #region game rules
         private void MainGame()
         {
-            players = FindObjectsOfType<PlayerManager>();
-            if (SceneManager.GetActiveScene().name == "Room for 2" && players.Length > 1)
-            //if (SceneManager.GetActiveScene().name == "Room for 1"/* && players.Length > 0*/)
+            //players = FindObjectsOfType<PlayerManager>();
+            players = GameObject.FindGameObjectsWithTag("Player");
+            if (first && players.Length > 1)
             {
-                var res = new List<PlayerManager>();
-                foreach (var p in players)
-                {
-                    res.Add(p);
-                }
-                player1 = players[0];
-                player2 = players[1];
-
+                player1 = new PlayerStat(100, players[0].GetInstanceID());
+                player2 = new PlayerStat(100, players[1].GetInstanceID());
+                first = false;
+            }
+            if (SceneManager.GetActiveScene().name == "Room for 2" && players.Length > 1)
+            {
                 if (turn % 2 == 0)
                 {
-                    //player2.myTurn = true;
-                    //player1.myTurn = false;
+                    //Tour 1 P2
                     GameLoop(player2, player1);
                 }
                 else
                 {
-                    //player2.myTurn = false;
-                    //player1.myTurn = true;
+                    //Tour 2 P1
                     GameLoop(player1, player2);
                 }
-                if (first)
-                {
-                    //health1 = player1.Health;
-                    //health2 = player2.Health;
-                    first = false;
-                }
-                //GameLoop(/*players[0]*/);
-                //OneIsDead(health1, health2);                   
+                CheckVictory(player1, player2);
             }
         }
 
-        private void GameLoop(PlayerManager playerTurn, PlayerManager otherPlayer)
+        //private void GameLoop(PlayerManager playerTurn, PlayerManager otherPlayer)
+        private void GameLoop(PlayerStat playerTurn, PlayerStat otherPlayer)
         {
             //foreach(var p in players)
             //{
@@ -248,15 +235,51 @@ namespace Com.MyCompany.MyGame
                         //Need image target to determine what is being played
                         //Loop trought the list cardsOnField to get damage/effects ...
                         //Let player choose what is the target and caculate damages
+                        damageTurn = 0;
+                        healTurn = 0;
                         battleText.SetActive(true);
                         if (Input.GetKeyDown(KeyCode.Z))
                         {
-                            //player1.GetComponent<PlayerManager>().DamagesCalculation(10);
-                            //otherPlayer.DamagesCalculation(50);
-                            foreach(var m in monsters)
+                            if(playerTurn.GetCardsOnField() != null)
                             {
-                                m.Attack(20, new MonsterManager());
+                                foreach(var c in playerTurn.GetCardsOnField())
+                                {
+                                    if (c.CompareTag("DPS") || c.CompareTag("tank"))
+                                    {
+                                        damageTurn += c.damage;
+                                        c.Attack();
+                                    }
+                                    else if (c.CompareTag("healer"))
+                                    {
+                                        healTurn += c.damage;
+                                        playerTurn.SetHealth(playerTurn.GetHealth() + healTurn);
+                                    }
+                                }
+                                if (otherPlayer.GetCardsOnField() != null)
+                                {
+                                    foreach(var c in otherPlayer.GetCardsOnField())
+                                    {
+                                        if(c.life + c.shield < damageTurn)
+                                        {
+                                            damageTurn -= c.life;
+                                            CardNumber(false);
+                                            oldCardNumber = currentCardNumber;
+                                            c.Die();
+                                        }
+                                        else
+                                        {
+                                            c.life -= damageTurn;
+                                            c.GetDamage();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    otherPlayer.SetHealth(otherPlayer.GetHealth() - damageTurn);
+                                }
+
                             }
+
                             battleText.SetActive(false);
                             StartCoroutine(WaitChangePhase(timeBetweenBoards));
                         }
@@ -264,17 +287,12 @@ namespace Com.MyCompany.MyGame
                     }
                 case gameState.endphase:
                     {
-                        //endText.SetActive(true);
-                        //if (Input.GetKeyDown(KeyCode.E))
-                        //{
-                        //endText.SetActive(false);
                         if (isEndTurn)
                         {
                             StartCoroutine(WaitChangePhase(timeBetweenBoards));
                             isEndTurn = true;
                         }
                         isEndTurn = false;
-                        //}
                         break;
                     }
             }
@@ -307,6 +325,36 @@ namespace Com.MyCompany.MyGame
             //TODO
         }
         #endregion
+
+        private void ResetUI()
+        {
+            drawBoard.SetActive(false);
+            mainBoard.SetActive(false);
+            battleBoard.SetActive(false);
+            endBoard.SetActive(false);
+
+            drawText.SetActive(false);
+            playText.SetActive(false);
+            battleText.SetActive(false);
+            endText.SetActive(false);
+        }
+
+        public int CheckVictory(PlayerStat p1, PlayerStat p2)
+        {
+            if(p1.GetHealth() <= 0)
+            {
+                ResetUI();
+                isPlaying = false;
+                return 1;
+            }
+            if(p2.GetHealth() <= 0)
+            {
+                ResetUI();
+                isPlaying = false;
+                return 2;
+            }
+            return 0;
+        }
 
         public void CardNumber(bool isUp)
         {

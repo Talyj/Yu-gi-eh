@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 9125462169748203978}
   m_Layer: 0
   m_Name: Card3
-  m_TagString: Untagged
+  m_TagString: tank
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -171,6 +171,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 9125462169748203983}
     m_Modifications:
+    - target: {fileID: 8311395004173916023, guid: 1a60eca13ae89fb44a8f54d7831c08e7,
+        type: 3}
+      propertyPath: damage
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 8417993809841057950, guid: 1a60eca13ae89fb44a8f54d7831c08e7,
         type: 3}
       propertyPath: m_RootOrder
@@ -245,6 +250,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: defender
+      objectReference: {fileID: 0}
+    - target: {fileID: 9194494917113752100, guid: 1a60eca13ae89fb44a8f54d7831c08e7,
+        type: 3}
+      propertyPath: m_TagString
+      value: tank
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1a60eca13ae89fb44a8f54d7831c08e7, type: 3}

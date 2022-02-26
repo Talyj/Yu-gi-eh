@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 8052469281162805817}
   m_Layer: 0
   m_Name: Card1
-  m_TagString: Untagged
+  m_TagString: healer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -241,9 +241,19 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3977447103730801460, guid: 7def845a16ca2f14d8a801711f8f1325,
+        type: 3}
+      propertyPath: damage
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 4320028192657023788, guid: 7def845a16ca2f14d8a801711f8f1325,
         type: 3}
       propertyPath: m_Name
+      value: healer
+      objectReference: {fileID: 0}
+    - target: {fileID: 4320028192657023788, guid: 7def845a16ca2f14d8a801711f8f1325,
+        type: 3}
+      propertyPath: m_TagString
       value: healer
       objectReference: {fileID: 0}
     m_RemovedComponents: []

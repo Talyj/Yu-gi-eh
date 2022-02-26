@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 7885691501628538021}
   m_Layer: 0
   m_Name: Card2
-  m_TagString: Untagged
+  m_TagString: DPS
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -171,6 +171,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7885691501628538024}
     m_Modifications:
+    - target: {fileID: 168681529251486221, guid: 575af713d261f1d45b86c06012343d8f,
+        type: 3}
+      propertyPath: damage
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 422774901662367211, guid: 575af713d261f1d45b86c06012343d8f,
         type: 3}
       propertyPath: m_RootOrder
@@ -245,6 +250,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: attacker
+      objectReference: {fileID: 0}
+    - target: {fileID: 1051079398515107665, guid: 575af713d261f1d45b86c06012343d8f,
+        type: 3}
+      propertyPath: m_TagString
+      value: DPS
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 575af713d261f1d45b86c06012343d8f, type: 3}

@@ -6,6 +6,7 @@ using UnityEngine.Animations;
 public class MonsterManager : MonoBehaviour
 {
     public float life;
+    public float damage;
     public float shield;
     public string type;
     public bool hasShield;
@@ -23,12 +24,18 @@ public class MonsterManager : MonoBehaviour
             GetDamage();
         }
         if(Input.GetKeyDown("a")) {
-            Attack(1, null);
+            Attack();
         }
 
         //sauf lui
 
         if(anim.GetCurrentAnimatorStateInfo(0).IsName("death") && anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 1) {
+            DestroyEntity();
+        }
+
+        if(life <= 0)
+        {
+            Die();
             DestroyEntity();
         }
     }
@@ -45,16 +52,16 @@ public class MonsterManager : MonoBehaviour
         anim.SetBool("Spawn", false);
     }
 
-    public void Attack(float dmg, MonsterManager target) {
+    public void Attack(/*float dmg, MonsterManager target*/) {
         anim.SetBool("Attack", true);
         Invoke("Reset", 0.2f);
-        target.GetDamage();
-        if(target.type == "defender") {
+        //target.GetDamage();
+        //if(target.type == "defender") {
             
-        }
-        if(this.type == "healer") {
+        //}
+        //if(this.type == "healer") {
 
-        }
+        //}
     }
  
     public void GetDamage() {

@@ -51,7 +51,7 @@ namespace Com.MyCompany.MyGame
             {
                 if (Health <= 0f)
                 {
-                    LeaveRoom();
+                    GameManager.Instance.LeaveRoom();
                 }
             }
 
@@ -61,11 +61,6 @@ namespace Com.MyCompany.MyGame
             //Game
             //}
             Debug.Log(" health" + Health);
-        }
-
-        public void LeaveRoom()
-        {
-            PhotonNetwork.LeaveRoom();
         }
 
         public void DamagesCalculation(float damage)
