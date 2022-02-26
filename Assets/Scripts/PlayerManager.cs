@@ -1,10 +1,5 @@
-using UnityEngine;
-using UnityEngine.EventSystems;
-
 using Photon.Pun;
-
-using System.Collections;
-using Photon.Realtime;
+using UnityEngine;
 
 namespace Com.MyCompany.MyGame
 {
@@ -19,7 +14,7 @@ namespace Com.MyCompany.MyGame
         [Tooltip("The current Health of our player")]
         public float Health;
 
-        public bool myTurn = false;
+        //public bool myTurn = false;
         public static PlayerManager Instance;
 
         public static GameObject[] cardsOnField;
@@ -36,7 +31,6 @@ namespace Com.MyCompany.MyGame
             {
                 Debug.LogWarning("<Color=Red><a>Missing</a></Color> PlayerUiPrefab reference on player Prefab.", this);
             }
-            transform.position = new Vector3(5, 3, 0);
         }
 
         public void Awake()
@@ -55,7 +49,7 @@ namespace Com.MyCompany.MyGame
         {
             if (photonView.IsMine)
             {
-                if(Health <= 0f)
+                if (Health <= 0f)
                 {
                     GameManager.Instance.LeaveRoom();
                 }
@@ -63,9 +57,10 @@ namespace Com.MyCompany.MyGame
 
             //if (myTurn)
             //{
-                Movement();
-                //Game
+            //Movement();
+            //Game
             //}
+            Debug.Log(" health" + Health);
         }
 
         public void DamagesCalculation(float damage)
@@ -76,7 +71,7 @@ namespace Com.MyCompany.MyGame
 
         private void EndTurn()
         {
-            myTurn = false;            
+            //myTurn = false;            
         }
 
         private void DeclareAttack()
@@ -114,14 +109,5 @@ namespace Com.MyCompany.MyGame
                 this.Health = (float)stream.ReceiveNext();
             }
         }
-
-        public void OnCollisionEnter(Collision other)
-        {
-            if (other.gameObject.CompareTag("damage"))
-            {
-                Health -= 20;
-            }
-        }
-
     }
 }
